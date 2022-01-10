@@ -9,6 +9,7 @@ export const getItems = () => async (dispatch) => {
 
   try {
     const res = await axios.get("/api/items");
+
     dispatch({
       type: GET_ITEMS,
       payload: res.data,
@@ -21,7 +22,6 @@ export const getItems = () => async (dispatch) => {
 export const addItem = (newItem) => async (dispatch, getState) => {
   try {
     const body = JSON.stringify(newItem);
-    console.log(body);
     const res = await axios.post("/api/items", body, tokenConfig(getState));
     dispatch({
       type: ADD_ITEM,
