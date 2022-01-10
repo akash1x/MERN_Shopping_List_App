@@ -1,33 +1,47 @@
 import { ADD_ITEM, GET_ITEMS, DELETE_ITEM, ITEMS_LOADING } from "./types";
 import axios from "axios";
+import { tokenConfig } from "./authActions";
+import { returnErrors } from "./errorActions";
 
 //This is where thunk comes in to make asynchronous request, using dispatch
-export const getItems = () => (dispatch) => {
+export const getItems = () => async (dispatch) => {
   dispatch(setItemsLoading());
-  axios.get("/api/items").then((res) =>
+
+  try {
+    const res = await axios.get("/api/items");
     dispatch({
       type: GET_ITEMS,
       payload: res.data,
-    })
-  );
+    });
+  } catch (err) {
+    dispatch(returnErrors(err.response.data, err.response.status));
+  }
 };
 
-export const addItem = (newItem) => (dispatch) => {
-  axios.post("/api/items", newItem).then((res) =>
+export const addItem = (newItem) => async (dispatch, getState) => {
+  try {
+    const body = JSON.stringify(newItem);
+    console.log(body);
+    const res = await axios.post("/api/items", body, tokenConfig(getState));
     dispatch({
       type: ADD_ITEM,
       payload: res.data,
-    })
-  );
+    });
+  } catch (err) {
+    dispatch(returnErrors(err.response.data, err.response.status));
+  }
 };
 
-export const deleteItem = (id) => (dispatch) => {
-  axios.delete(`/api/items/${id}`).then((res) =>
+export const deleteItem = (id) => async (dispatch, getState) => {
+  try {
+    const res = await axios.delete(`/api/items/${id}`, tokenConfig(getState));
     dispatch({
       type: DELETE_ITEM,
       payload: id,
-    })
-  );
+    });
+  } catch (err) {
+    dispatch(returnErrors(err.response.data, err.response.status));
+  }
 };
 
 export const setItemsLoading = () => {
